@@ -25,6 +25,7 @@
                   <el-option label="全部" value="all" />
                   <el-option label="任务完成" value="task_completion" />
                   <el-option label="手动调整" value="manual_adjustment" />
+                  <el-option label="任务取消" value="task_cancellation" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -57,7 +58,7 @@
           </el-table-column>
           <el-table-column prop="type" label="类型" width="120">
             <template #default="scope">
-              <el-tag :type="scope.row.type === 'task_completion' ? 'success' : 'info'">
+              <el-tag :type="getTagType(scope.row.type)">
                 {{ typeLabelMap[scope.row.type] }}
               </el-tag>
             </template>
@@ -182,7 +183,20 @@ const filteredRecords = computed(() => {
 // 类型标签映射
 const typeLabelMap: Record<string, string> = {
   task_completion: '任务完成',
-  manual_adjustment: '手动调整'
+  manual_adjustment: '手动调整',
+  task_cancellation: '任务取消'
+}
+
+// 获取标签类型
+const getTagType = (type: string): 'success' | 'info' | 'danger' => {
+  switch (type) {
+    case 'task_completion':
+      return 'success'
+    case 'task_cancellation':
+      return 'danger'
+    default:
+      return 'info'
+  }
 }
 
 // 方法

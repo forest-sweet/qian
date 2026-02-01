@@ -412,8 +412,14 @@ const handleTaskCompletion = (task: Task) => {
         throw new Error('任务状态更新失败')
       }
       
+      // 3. 扣除奖励
+      const deductionRecord = rewardStore.recordTaskCancellationDeduction(task.id, originalTask.reward)
+      if (!deductionRecord) {
+        throw new Error('奖励扣除失败')
+      }
+      
       ElMessage.success({
-        message: '任务已标记为未完成',
+        message: `任务已标记为未完成，扣除 ${originalTask.reward} 元奖励`,
         duration: 2000
       })
     } catch (error) {

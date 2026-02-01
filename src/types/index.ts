@@ -17,7 +17,7 @@ export interface Task {
 export interface RewardRecord {
   id: string
   amount: number
-  type: 'task_completion' | 'manual_adjustment'
+  type: 'task_completion' | 'manual_adjustment' | 'task_cancellation'
   sourceTaskId?: string
   reason?: string
   createdAt: string

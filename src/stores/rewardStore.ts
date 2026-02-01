@@ -108,6 +108,36 @@ export const useRewardStore = defineStore('reward', () => {
     }
   }
 
+  // 记录任务取消奖励扣除
+  const recordTaskCancellationDeduction = (taskId: string, amount: number) => {
+    try {
+      const record = addRewardRecord({
+        amount: -amount,
+        type: 'task_cancellation',
+        sourceTaskId: taskId,
+        reason: `任务取消扣除 - 任务ID: ${taskId}`
+      })
+      
+      // 记录详细日志
+      console.log('任务取消奖励扣除成功:', {
+        taskId,
+        amount,
+        timestamp: new Date().toISOString(),
+        recordId: record.id
+      })
+      
+      return record
+    } catch (error) {
+      console.error('任务取消奖励扣除失败:', {
+        taskId,
+        amount,
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      })
+      throw error
+    }
+  }
+
   // 手动调整奖励
   const adjustReward = (adjustment: RewardAdjustment) => {
     return addRewardRecord({
@@ -153,6 +183,7 @@ export const useRewardStore = defineStore('reward', () => {
     getRecordsByTaskId,
     addRewardRecord,
     recordTaskCompletionReward,
+    recordTaskCancellationDeduction,
     adjustReward,
     getRecentRecords,
     getRewardTrend
