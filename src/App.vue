@@ -12,6 +12,7 @@
           >
             <el-menu-item index="/task-management">任务管理</el-menu-item>
             <el-menu-item index="/reward-center">奖励中心</el-menu-item>
+            <el-menu-item index="/store">商城</el-menu-item>
             <el-menu-item index="/statistics">统计分析</el-menu-item>
           </el-menu>
         </div>

@@ -17,7 +17,7 @@ export interface Task {
 export interface RewardRecord {
   id: string
   amount: number
-  type: 'task_completion' | 'manual_adjustment' | 'task_cancellation'
+  type: 'task_completion' | 'manual_adjustment' | 'task_cancellation' | 'purchase'
   sourceTaskId?: string
   reason?: string
   createdAt: string
@@ -27,6 +27,32 @@ export interface RewardRecord {
 export interface RewardAdjustment {
   amount: number
   reason: string
+}
+
+// 商品类型
+export interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  stock: number
+  imageUrl?: string
+  category: string
+  tags: string[]
+  createdAt: string
+  updatedAt?: string
+}
+
+// 交易记录类型
+export interface TransactionRecord {
+  id: string
+  type: 'purchase'
+  productId: string
+  productName: string
+  amount: number
+  quantity: number
+  totalPrice: number
+  createdAt: string
 }
 
 // 统计数据类型

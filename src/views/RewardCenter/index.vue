@@ -26,6 +26,7 @@
                   <el-option label="任务完成" value="task_completion" />
                   <el-option label="手动调整" value="manual_adjustment" />
                   <el-option label="任务取消" value="task_cancellation" />
+                  <el-option label="购买商品" value="purchase" />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -139,7 +140,7 @@ const adjustmentForm = ref({
   reason: ''
 })
 const filter = ref({
-  type: 'all' as 'all' | 'task_completion' | 'manual_adjustment',
+  type: 'all' as 'all' | 'task_completion' | 'manual_adjustment' | 'task_cancellation' | 'purchase',
   dateRange: [] as string[]
 })
 const pagination = ref({
@@ -184,16 +185,19 @@ const filteredRecords = computed(() => {
 const typeLabelMap: Record<string, string> = {
   task_completion: '任务完成',
   manual_adjustment: '手动调整',
-  task_cancellation: '任务取消'
+  task_cancellation: '任务取消',
+  purchase: '购买商品'
 }
 
 // 获取标签类型
-const getTagType = (type: string): 'success' | 'info' | 'danger' => {
+const getTagType = (type: string): 'success' | 'info' | 'danger' | 'warning' => {
   switch (type) {
     case 'task_completion':
       return 'success'
     case 'task_cancellation':
       return 'danger'
+    case 'purchase':
+      return 'warning'
     default:
       return 'info'
   }

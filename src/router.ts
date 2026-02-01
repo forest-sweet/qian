@@ -30,6 +30,22 @@ const router = createRouter({
       meta: {
         title: '统计分析'
       }
+    },
+    {
+      path: '/store',
+      name: 'Store',
+      component: () => import('./views/Store/index.vue'),
+      meta: {
+        title: '商城'
+      }
+    },
+    {
+      path: '/store/management',
+      name: 'ProductManagement',
+      component: () => import('./views/Store/ProductManagement.vue'),
+      meta: {
+        title: '商品管理'
+      }
     }
   ]
 })
