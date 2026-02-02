@@ -379,24 +379,30 @@ onMounted(() => {
 <style scoped>
 .store-container {
   padding: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .store-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: bold;
   margin: 0;
+  white-space: nowrap;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
 .balance-info {
@@ -430,6 +436,9 @@ onMounted(() => {
 
 .product-card {
   transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-card:hover {
@@ -440,6 +449,8 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .product-title {
@@ -447,10 +458,14 @@ onMounted(() => {
   font-weight: bold;
   margin: 0;
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-content {
   margin: 15px 0;
+  flex: 1;
 }
 
 .product-image {
@@ -489,6 +504,11 @@ onMounted(() => {
   margin-bottom: 15px;
   line-height: 1.5;
   color: #606266;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-meta {
@@ -502,6 +522,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 5px;
+  flex-wrap: wrap;
 }
 
 .product-price {
@@ -520,10 +541,12 @@ onMounted(() => {
   align-items: center;
   justify-content: flex-end;
   margin-top: 15px;
+  flex-wrap: wrap;
 }
 
 .transactions-section {
   margin-top: 20px;
+  overflow-x: auto;
 }
 
 .success-content {
@@ -557,17 +580,169 @@ onMounted(() => {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
+/* 响应式设计 */
+@media (max-width: 1440px) {
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
   }
+}
 
+@media (max-width: 1200px) {
+  .page-title {
+    font-size: 22px;
+  }
+  
+  .product-title {
+    font-size: 16px;
+  }
+  
+  .product-price .price {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 992px) {
   .store-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+  }
+  
+  .product-image {
+    height: 180px;
+  }
+  
+  .product-description {
+    -webkit-line-clamp: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .store-container {
+    padding: 15px 0;
+  }
+  
+  .page-title {
+    font-size: 18px;
+  }
+  
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .section-title {
+    font-size: 14px;
+  }
+  
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+  }
+  
+  .product-image {
+    height: 160px;
+  }
+  
+  .product-title {
+    font-size: 14px;
+  }
+  
+  .product-price .price {
+    font-size: 20px;
+  }
+  
+  .product-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .el-input-number {
+    width: 100%;
+  }
+  
+  .el-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-image {
+    height: 140px;
+  }
+  
+  .product-image-placeholder .el-icon {
+    font-size: 32px;
+  }
+  
+  .success-icon,
+  .failed-icon {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .store-container {
+    padding: 10px 0;
+  }
+  
+  .page-title {
+    font-size: 16px;
+  }
+  
+  .product-content {
+    margin: 10px 0;
+  }
+  
+  .product-image {
+    height: 120px;
+    margin-bottom: 10px;
+  }
+  
+  .product-description {
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  
+  .product-meta {
+    margin-bottom: 10px;
+    gap: 5px;
+  }
+  
+  .product-price {
+    margin-bottom: 10px;
+  }
+  
+  .product-price .price {
+    font-size: 18px;
+  }
+  
+  .product-actions {
+    margin-top: 10px;
+    gap: 5px;
   }
 }
 </style>

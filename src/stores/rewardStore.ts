@@ -175,6 +175,43 @@ export const useRewardStore = defineStore('reward', () => {
     return trendData
   }
 
+  // 重置余额
+  const resetBalance = () => {
+    try {
+      const previousBalance = currentBalance.value
+      
+      // 计算需要扣除的金额
+      const deductionAmount = -previousBalance
+      
+      // 添加重置记录
+      const record = addRewardRecord({
+        amount: deductionAmount,
+        type: 'manual_adjustment',
+        reason: `余额重置 - 重置前金额: ${previousBalance}元`
+      })
+      
+      // 记录详细日志
+      console.log('余额重置成功:', {
+        previousBalance,
+        timestamp: new Date().toISOString(),
+        operatorId: 'system',
+        recordId: record.id
+      })
+      
+      return {
+        success: true,
+        previousBalance,
+        record
+      }
+    } catch (error) {
+      console.error('余额重置失败:', {
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      })
+      throw error
+    }
+  }
+
   return {
     rewardRecords,
     currentBalance,
@@ -186,6 +223,7 @@ export const useRewardStore = defineStore('reward', () => {
     recordTaskCancellationDeduction,
     adjustReward,
     getRecentRecords,
-    getRewardTrend
+    getRewardTrend,
+    resetBalance
   }
 })

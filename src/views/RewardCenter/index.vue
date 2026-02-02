@@ -3,7 +3,7 @@
     <el-card class="balance-card">
       <div class="balance-header">
         <h2 class="page-title">奖励中心</h2>
-        <el-button type="primary" @click="openAdjustRewardDialog">调整余额</el-button>
+        <el-button type="primary" @click="resetBalance">重置余额</el-button>
       </div>
       <div class="balance-display">
         <el-statistic :value="currentBalance" label="当前余额(元)" />
@@ -127,6 +127,7 @@
 import { ref, computed } from 'vue'
 import { useRewardStore } from '@/stores/rewardStore'
 import { useTaskStore } from '@/stores/taskStore'
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 
 const rewardStore = useRewardStore()
@@ -262,11 +263,59 @@ const formatDateTime = (dateString: string) => {
   const date = new Date(dateString)
   return date.toLocaleString('zh-CN')
 }
+
+const resetBalance = async () => {
+  try {
+    await ElMessageBox.confirm(
+      '确认将奖励中心金额重置为零？此操作不可恢复',
+      '重置余额',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }
+    )
+
+    // 调用rewardStore的resetBalance方法
+    const result = rewardStore.resetBalance()
+
+    // 显示成功消息
+    ElMessage({
+      type: 'success',
+      message: '余额重置成功',
+      duration: 2000
+    })
+
+    console.log('余额重置操作记录:', {
+      timestamp: new Date().toISOString(),
+      operatorId: 'system',
+      previousBalance: result.previousBalance,
+      currentBalance: rewardStore.currentBalance
+    })
+  } catch (error: any) {
+    if (error === 'cancel') {
+      // 用户取消操作，不做处理
+      return
+    }
+
+    // 显示错误消息
+    ElMessage({
+      type: 'error',
+      message: error.message || '余额重置失败，请稍后重试',
+      duration: 3000
+    })
+
+    console.error('余额重置失败:', error)
+  }
+}
 </script>
 
 <style scoped>
 .reward-center-container {
   padding: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .balance-header {
@@ -274,12 +323,15 @@ const formatDateTime = (dateString: string) => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: bold;
   margin: 0;
+  white-space: nowrap;
 }
 
 .balance-display {
@@ -287,15 +339,19 @@ const formatDateTime = (dateString: string) => {
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .balance-actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .records-section {
   margin-top: 20px;
+  overflow-x: auto;
 }
 
 .section-title {
@@ -312,6 +368,7 @@ const formatDateTime = (dateString: string) => {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .amount-positive {
@@ -322,5 +379,116 @@ const formatDateTime = (dateString: string) => {
 .amount-negative {
   color: #f56c6c;
   font-weight: bold;
+}
+
+/* 响应式设计 */
+@media (max-width: 1440px) {
+  .reward-center-container {
+    padding: 15px 0;
+  }
+}
+
+@media (max-width: 1200px) {
+  .page-title {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 992px) {
+  .balance-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .balance-display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .balance-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .reward-center-container {
+    padding: 15px 0;
+  }
+  
+  .page-title {
+    font-size: 18px;
+  }
+  
+  .section-title {
+    font-size: 14px;
+  }
+  
+  .balance-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .el-button {
+    width: 100%;
+  }
+  
+  .el-table {
+    font-size: 12px;
+  }
+  
+  .el-table-column {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .reward-center-container {
+    padding: 10px 0;
+  }
+  
+  .page-title {
+    font-size: 16px;
+  }
+  
+  .el-table {
+    font-size: 11px;
+  }
+  
+  .el-table-column {
+    font-size: 11px;
+  }
+  
+  .el-pagination {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .balance-header {
+    margin-bottom: 15px;
+  }
+  
+  .balance-display {
+    margin-top: 15px;
+  }
+  
+  .records-section {
+    margin-top: 15px;
+  }
+  
+  .filter-section {
+    margin-bottom: 15px;
+  }
+  
+  .pagination {
+    margin-top: 15px;
+  }
 }
 </style>

@@ -487,6 +487,8 @@ watch(
 <style scoped>
 .statistics-container {
   padding: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .stats-header {
@@ -494,21 +496,26 @@ watch(
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: bold;
   margin: 0;
+  white-space: nowrap;
 }
 
 .date-range-selector {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .stats-card {
   margin-bottom: 20px;
+  height: 100%;
 }
 
 .section-title {
@@ -520,10 +527,12 @@ watch(
 .chart-container {
   height: 300px;
   width: 100%;
+  min-height: 250px;
 }
 
 .chart-container.large {
   height: 400px;
+  min-height: 300px;
 }
 
 .stats-grid {
@@ -533,9 +542,120 @@ watch(
   margin-top: 20px;
 }
 
+/* 响应式设计 */
+@media (max-width: 1440px) {
+  .statistics-container {
+    padding: 15px 0;
+  }
+  
+  .chart-container {
+    height: 280px;
+  }
+  
+  .chart-container.large {
+    height: 350px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .page-title {
+    font-size: 22px;
+  }
+  
+  .section-title {
+    font-size: 14px;
+  }
+  
+  .chart-container {
+    height: 250px;
+  }
+  
+  .chart-container.large {
+    height: 320px;
+  }
+}
+
+@media (max-width: 992px) {
+  .stats-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .chart-container {
+    height: 220px;
+  }
+  
+  .chart-container.large {
+    height: 280px;
+  }
+}
+
 @media (max-width: 768px) {
+  .statistics-container {
+    padding: 15px 0;
+  }
+  
+  .page-title {
+    font-size: 18px;
+  }
+  
+  .chart-container {
+    height: 200px;
+  }
+  
+  .chart-container.large {
+    height: 250px;
+  }
+  
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .statistics-container {
+    padding: 10px 0;
+  }
+  
+  .page-title {
+    font-size: 16px;
+  }
+  
+  .chart-container {
+    height: 180px;
+  }
+  
+  .chart-container.large {
+    height: 220px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-header {
+    margin-bottom: 15px;
+  }
+  
+  .chart-container {
+    height: 160px;
+  }
+  
+  .chart-container.large {
+    height: 200px;
+  }
+  
+  .stats-grid {
+    gap: 10px;
   }
 }
 </style>

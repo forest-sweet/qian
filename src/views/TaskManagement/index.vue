@@ -473,6 +473,8 @@ onMounted(() => {
 <style scoped>
 .task-management-container {
   padding: 20px 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .task-header {
@@ -480,18 +482,22 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .page-title {
   font-size: 24px;
   font-weight: bold;
   margin: 0;
+  white-space: nowrap;
 }
 
 .task-stats {
   display: flex;
   gap: 40px;
   margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 .filter-section {
@@ -516,6 +522,9 @@ onMounted(() => {
 
 .task-card {
   transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .task-card:hover {
@@ -531,6 +540,8 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .task-title {
@@ -538,20 +549,30 @@ onMounted(() => {
   font-weight: bold;
   margin: 0;
   flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .task-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .task-content {
   margin: 15px 0;
+  flex: 1;
 }
 
 .task-description {
   margin-bottom: 15px;
   line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .task-meta {
@@ -565,6 +586,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 5px;
+  flex-wrap: wrap;
 }
 
 .meta-item.reward {
@@ -601,6 +623,136 @@ onMounted(() => {
   100% {
     opacity: 0;
     transform: translate(-50%, -150%) scale(1.2);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 1440px) {
+  .task-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 15px;
+  }
+  
+  .task-stats {
+    gap: 30px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .page-title {
+    font-size: 22px;
+  }
+  
+  .task-title {
+    font-size: 16px;
+  }
+  
+  .task-stats {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .task-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+  }
+  
+  .task-stats {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .task-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+  }
+  
+  .task-description {
+    -webkit-line-clamp: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .task-management-container {
+    padding: 15px 0;
+  }
+  
+  .page-title {
+    font-size: 18px;
+  }
+  
+  .section-title {
+    font-size: 14px;
+  }
+  
+  .task-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+  }
+  
+  .task-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .task-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .meta-item.reward {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 576px) {
+  .task-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .reward-animation {
+    padding: 15px 30px;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-management-container {
+    padding: 10px 0;
+  }
+  
+  .page-title {
+    font-size: 16px;
+  }
+  
+  .task-content {
+    margin: 10px 0;
+  }
+  
+  .task-description {
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  
+  .task-meta {
+    gap: 5px;
+  }
+  
+  .task-footer {
+    margin-top: 10px;
+  }
+  
+  .reward-animation {
+    padding: 10px 20px;
+    font-size: 18px;
   }
 }
 </style>

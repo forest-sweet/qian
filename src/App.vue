@@ -61,12 +61,16 @@ const handleMenuSelect = (key: string) => {
   padding: 0 20px;
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .app-title {
   font-size: 20px;
   font-weight: bold;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .el-menu-demo {
@@ -93,5 +97,75 @@ const handleMenuSelect = (key: string) => {
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
+}
+
+/* 响应式设计 */
+@media (max-width: 1440px) {
+  .header-content,
+  .app-main {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 1200px) {
+  .app-title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 992px) {
+  .header-content {
+    padding: 0 15px;
+  }
+  
+  .app-title {
+    font-size: 16px;
+  }
+  
+  .app-main {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .app-title {
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .el-menu-demo {
+    width: 100%;
+  }
+  
+  .el-menu-item {
+    font-size: 12px;
+  }
+  
+  .app-main {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    height: auto;
+    min-height: 60px;
+  }
+  
+  .app-title {
+    font-size: 12px;
+  }
+  
+  .el-menu-item {
+    padding: 0 8px;
+  }
 }
 </style>
