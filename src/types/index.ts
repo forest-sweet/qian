@@ -11,6 +11,8 @@ export interface Task {
   completed: boolean
   createdAt: string
   completedAt?: string
+  isLongTerm?: boolean
+  completionCount?: number
 }
 
 // 奖励记录类型

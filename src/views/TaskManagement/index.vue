@@ -6,10 +6,10 @@
         <el-button type="primary" @click="openAddTaskDialog">添加任务</el-button>
       </div>
       <div class="task-stats">
-        <el-statistic :value="totalTasks" label="总任务数" />
-        <el-statistic :value="completedTasks" label="已完成" />
-        <el-statistic :value="pendingTasks" label="待完成" />
-        <el-statistic :value="completionRate" label="完成率" :formatter="(value: number) => `${value}%`" />
+        <el-statistic :value="'总任务数：' + totalTasks" label="" />
+        <el-statistic :value="'长期任务：' + longTermTasks" label="" />
+        <el-statistic :value="'待完成任务：' + pendingTasks" label="" />
+        <el-statistic :value="'完成率：' + completionRate.toFixed(1) + '%'" label="" />
       </div>
     </el-card>
 
@@ -104,9 +104,19 @@
                 </div>
               </div>
               <div class="task-footer">
-                <el-checkbox :checked="task.completed" @change="handleTaskCompletion(task)">
-                  {{ task.completed ? '已完成' : '未完成' }}
-                </el-checkbox>
+                <template v-if="task.isLongTerm">
+                  <el-button type="primary" size="small" @click="handleTaskCompletion(task)">
+                    完成任务
+                  </el-button>
+                  <span class="completion-count">
+                    已完成 {{ task.completionCount || 0 }} 次
+                  </span>
+                </template>
+                <template v-else>
+                  <el-checkbox :checked="task.completed" @change="handleTaskCompletion(task)">
+                    {{ task.completed ? '已完成' : '未完成' }}
+                  </el-checkbox>
+                </template>
               </div>
             </el-card>
           </div>
@@ -170,6 +180,11 @@
             style="width: 150px; margin-top: 8px"
           />
         </el-form-item>
+        <el-form-item label="长期任务">
+          <el-checkbox v-model="formData.isLongTerm">
+            标记为长期任务（可重复完成）
+          </el-checkbox>
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -226,6 +241,7 @@ const rewardAnimationRef = ref<HTMLElement>()
 const totalTasks = computed(() => taskStore.totalTasks)
 const completedTasks = computed(() => taskStore.completedTasks)
 const pendingTasks = computed(() => taskStore.pendingTasks)
+const longTermTasks = computed(() => taskStore.longTermTasks)
 const completionRate = computed(() => taskStore.completionRate)
 const categories = computed(() => taskStore.getAllCategories)
 const tags = computed(() => taskStore.getAllTags)
@@ -283,7 +299,8 @@ const openAddTaskDialog = () => {
     priority: 'medium',
     reward: 10,
     category: '工作',
-    tags: []
+    tags: [],
+    isLongTerm: false
   }
   taskDialogVisible.value = true
 }
@@ -297,7 +314,8 @@ const openEditTaskDialog = (task: Task) => {
     priority: task.priority,
     reward: task.reward,
     category: task.category,
-    tags: [...task.tags]
+    tags: [...task.tags],
+    isLongTerm: task.isLongTerm || false
   }
   taskDialogVisible.value = true
 }
@@ -312,7 +330,8 @@ const saveTask = () => {
       priority: formData.value.priority,
       reward: formData.value.reward,
       category: formData.value.category,
-      tags: formData.value.tags
+      tags: formData.value.tags,
+      isLongTerm: formData.value.isLongTerm
     })
   } else {
     // 创建任务
@@ -323,7 +342,8 @@ const saveTask = () => {
       priority: formData.value.priority,
       reward: formData.value.reward,
       category: formData.value.category,
-      tags: formData.value.tags
+      tags: formData.value.tags,
+      isLongTerm: formData.value.isLongTerm
     })
   }
   taskDialogVisible.value = false
@@ -338,51 +358,41 @@ const handleTaskCompletion = (task: Task) => {
   const originalTask = taskStore.tasks.find(t => t.id === task.id)
   if (!originalTask) return
   
-  const targetCompleted = !originalTask.completed
-  
-  if (targetCompleted) {
-    // 标记为完成
+  // 处理长期任务
+  if (originalTask.isLongTerm) {
     try {
-      // 1. 检查任务是否已经是完成状态
-      if (originalTask.completed) {
-        ElMessage.info({
-          message: '任务已经是完成状态',
-          duration: 2000
-        })
-        return
-      }
-      
-      // 2. 标记任务为完成
-      const completedTask = taskStore.completeTask(task.id)
+      // 1. 完成长期任务（增加完成次数）
+      const completedTask = taskStore.completeLongTermTask(task.id)
       if (!completedTask) {
         throw new Error('任务状态更新失败')
       }
       
-      // 3. 发放奖励
+      // 2. 发放奖励
       const rewardRecord = rewardStore.recordTaskCompletionReward(task.id, completedTask.reward)
       if (!rewardRecord) {
         throw new Error('奖励发放失败')
       }
       
-      // 4. 显示奖励动画
+      // 3. 显示奖励动画
       showRewardAnimationEffect(completedTask.reward)
       
-      // 5. 显示成功提示
+      // 4. 显示成功提示
       ElMessage.success({
         message: `任务完成成功！获得 ${completedTask.reward} 元`,
         duration: 2000
       })
       
-      // 6. 记录详细日志
-      console.log('任务完成奖励发放成功:', {
+      // 5. 记录详细日志
+      console.log('长期任务完成奖励发放成功:', {
         taskId: task.id,
         taskTitle: task.title,
         rewardAmount: completedTask.reward,
+        completionCount: completedTask.completionCount,
         timestamp: new Date().toISOString()
       })
     } catch (error) {
       // 异常处理
-      console.error('任务完成处理失败:', {
+      console.error('长期任务完成处理失败:', {
         taskId: task.id,
         error: error instanceof Error ? error.message : String(error),
         timestamp: new Date().toISOString()
@@ -395,43 +405,102 @@ const handleTaskCompletion = (task: Task) => {
       })
     }
   } else {
-    // 标记为未完成
-    try {
-      // 1. 检查任务是否已经是未完成状态
-      if (!originalTask.completed) {
-        ElMessage.info({
-          message: '任务已经是未完成状态',
+    // 处理普通任务
+    const targetCompleted = !originalTask.completed
+    
+    if (targetCompleted) {
+      // 标记为完成
+      try {
+        // 1. 检查任务是否已经是完成状态
+        if (originalTask.completed) {
+          ElMessage.info({
+            message: '任务已经是完成状态',
+            duration: 2000
+          })
+          return
+        }
+        
+        // 2. 标记任务为完成
+        const completedTask = taskStore.completeTask(task.id)
+        if (!completedTask) {
+          throw new Error('任务状态更新失败')
+        }
+        
+        // 3. 发放奖励
+        const rewardRecord = rewardStore.recordTaskCompletionReward(task.id, completedTask.reward)
+        if (!rewardRecord) {
+          throw new Error('奖励发放失败')
+        }
+        
+        // 4. 显示奖励动画
+        showRewardAnimationEffect(completedTask.reward)
+        
+        // 5. 显示成功提示
+        ElMessage.success({
+          message: `任务完成成功！获得 ${completedTask.reward} 元`,
           duration: 2000
         })
-        return
+        
+        // 6. 记录详细日志
+        console.log('任务完成奖励发放成功:', {
+          taskId: task.id,
+          taskTitle: task.title,
+          rewardAmount: completedTask.reward,
+          timestamp: new Date().toISOString()
+        })
+      } catch (error) {
+        // 异常处理
+        console.error('任务完成处理失败:', {
+          taskId: task.id,
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString()
+        })
+        
+        // 显示错误提示
+        ElMessage.error({
+          message: '任务完成处理失败，请重试',
+          duration: 3000
+        })
       }
-      
-      // 2. 标记任务为未完成
-      const uncompletedTask = taskStore.uncompleteTask(task.id)
-      if (!uncompletedTask) {
-        throw new Error('任务状态更新失败')
+    } else {
+      // 标记为未完成
+      try {
+        // 1. 检查任务是否已经是未完成状态
+        if (!originalTask.completed) {
+          ElMessage.info({
+            message: '任务已经是未完成状态',
+            duration: 2000
+          })
+          return
+        }
+        
+        // 2. 标记任务为未完成
+        const uncompletedTask = taskStore.uncompleteTask(task.id)
+        if (!uncompletedTask) {
+          throw new Error('任务状态更新失败')
+        }
+        
+        // 3. 扣除奖励
+        const deductionRecord = rewardStore.recordTaskCancellationDeduction(task.id, originalTask.reward)
+        if (!deductionRecord) {
+          throw new Error('奖励扣除失败')
+        }
+        
+        ElMessage.success({
+          message: `任务已标记为未完成，扣除 ${originalTask.reward} 元奖励`,
+          duration: 2000
+        })
+      } catch (error) {
+        console.error('任务状态更新失败:', {
+          taskId: task.id,
+          error: error instanceof Error ? error.message : String(error),
+          timestamp: new Date().toISOString()
+        })
+        ElMessage.error({
+          message: '任务状态更新失败，请重试',
+          duration: 3000
+        })
       }
-      
-      // 3. 扣除奖励
-      const deductionRecord = rewardStore.recordTaskCancellationDeduction(task.id, originalTask.reward)
-      if (!deductionRecord) {
-        throw new Error('奖励扣除失败')
-      }
-      
-      ElMessage.success({
-        message: `任务已标记为未完成，扣除 ${originalTask.reward} 元奖励`,
-        duration: 2000
-      })
-    } catch (error) {
-      console.error('任务状态更新失败:', {
-        taskId: task.id,
-        error: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString()
-      })
-      ElMessage.error({
-        message: '任务状态更新失败，请重试',
-        duration: 3000
-      })
     }
   }
 }
@@ -598,6 +667,16 @@ onMounted(() => {
 .task-footer {
   margin-top: 15px;
   text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+
+.completion-count {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
 }
 
 .reward-animation {

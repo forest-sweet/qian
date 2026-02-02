@@ -71,9 +71,15 @@ export const useTaskStore = defineStore('task', () => {
   }, { deep: true })
 
   // 计算属性
-  const totalTasks = computed(() => tasks.value.length)
-  const completedTasks = computed(() => tasks.value.filter(task => task.completed).length)
-  const pendingTasks = computed(() => tasks.value.filter(task => !task.completed).length)
+  // 总任务数（排除长期任务）
+  const totalTasks = computed(() => tasks.value.filter(task => !task.isLongTerm).length)
+  // 已完成任务数（仅普通任务）
+  const completedTasks = computed(() => tasks.value.filter(task => !task.isLongTerm && task.completed).length)
+  // 待完成任务数（仅普通任务）
+  const pendingNormalTasks = computed(() => tasks.value.filter(task => !task.isLongTerm && !task.completed).length)
+  // 长期任务数
+  const longTermTasks = computed(() => tasks.value.filter(task => task.isLongTerm).length)
+  // 完成率（基于普通任务）
   const completionRate = computed(() => {
     if (totalTasks.value === 0) return 0
     return (completedTasks.value / totalTasks.value) * 100
@@ -119,12 +125,14 @@ export const useTaskStore = defineStore('task', () => {
   })
 
   // 创建任务
-  const createTask = (task: Omit<Task, 'id' | 'createdAt' | 'completed'>) => {
+  const createTask = (task: Omit<Task, 'id' | 'createdAt' | 'completed' | 'isLongTerm' | 'completionCount'> & { isLongTerm?: boolean }) => {
     const newTask: Task = {
       ...task,
       id: Date.now().toString(),
       completed: false,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      isLongTerm: task.isLongTerm || false,
+      completionCount: task.isLongTerm ? 0 : undefined
     }
     tasks.value.push(newTask)
     return newTask
@@ -134,8 +142,17 @@ export const useTaskStore = defineStore('task', () => {
   const updateTask = (id: string, updates: Partial<Task>) => {
     const index = tasks.value.findIndex(task => task.id === id)
     if (index !== -1) {
-      tasks.value[index] = { ...tasks.value[index], ...updates }
-      return tasks.value[index]
+      const updatedTask = { ...tasks.value[index], ...updates }
+      // 如果任务被设置为长期任务，确保completionCount为0
+      if (updatedTask.isLongTerm && updatedTask.completionCount === undefined) {
+        updatedTask.completionCount = 0
+      }
+      // 如果任务被取消长期任务，移除completionCount
+      if (!updatedTask.isLongTerm) {
+        delete updatedTask.completionCount
+      }
+      tasks.value[index] = updatedTask
+      return updatedTask
     }
     return null
   }
@@ -172,11 +189,24 @@ export const useTaskStore = defineStore('task', () => {
     return null
   }
 
+  // 完成长期任务（增加完成次数）
+  const completeLongTermTask = (id: string) => {
+    const task = tasks.value.find(task => task.id === id)
+    if (task && task.isLongTerm) {
+      // 增加完成次数
+      task.completionCount = (task.completionCount || 0) + 1
+      return task
+    }
+    return null
+  }
+
   return {
     tasks,
     totalTasks,
     completedTasks,
-    pendingTasks,
+    pendingTasks: pendingNormalTasks,
+    pendingNormalTasks,
+    longTermTasks,
     completionRate,
     getTasksByStatus,
     getTasksByPriority,
@@ -188,6 +218,7 @@ export const useTaskStore = defineStore('task', () => {
     updateTask,
     deleteTask,
     completeTask,
-    uncompleteTask
+    uncompleteTask,
+    completeLongTermTask
   }
 })

@@ -54,14 +54,14 @@
     <el-card class="stats-summary-card" style="margin-top: 20px;">
       <h3 class="section-title">统计摘要</h3>
       <div class="stats-grid">
-        <el-statistic :value="totalTasks" label="总任务数" />
-        <el-statistic :value="completedTasks" label="已完成任务" />
-        <el-statistic :value="pendingTasks" label="待完成任务" />
-        <el-statistic :value="completionRate.toFixed(1) + '%'" label="完成率" />
-        <el-statistic :value="totalRewards" label="总奖励获取(元)" />
-        <el-statistic :value="averageRewardPerTask.toFixed(1)" label="平均任务奖励(元)" />
-        <el-statistic :value="currentBalance" label="当前余额(元)" />
-        <el-statistic :value="rewardTrend.length" label="数据统计天数" />
+        <el-statistic :value="'总任务数：' + totalTasks" label="" />
+        <el-statistic :value="'已完成任务：' + completedTasks" label="" />
+        <el-statistic :value="'长期任务：' + longTermTasks" label="" />
+        <el-statistic :value="'完成率：' + completionRate.toFixed(1) + '%'" label="" />
+        <el-statistic :value="'总奖励获取：' + totalRewards + ' 元'" label="" />
+        <el-statistic :value="'平均任务奖励：' + averageRewardPerTask.toFixed(1) + ' 元'" label="" />
+        <el-statistic :value="'当前余额：' + currentBalance + ' 元'" label="" />
+        <el-statistic :value="'数据统计天数：' + rewardTrend.length" label="" />
       </div>
     </el-card>
   </div>
@@ -97,6 +97,7 @@ let correlationChart: echarts.ECharts | null = null
 const totalTasks = computed(() => taskStore.totalTasks)
 const completedTasks = computed(() => taskStore.completedTasks)
 const pendingTasks = computed(() => taskStore.pendingTasks)
+const longTermTasks = computed(() => taskStore.longTermTasks)
 const completionRate = computed(() => taskStore.completionRate)
 const currentBalance = computed(() => rewardStore.currentBalance)
 const totalRewards = computed(() => {
@@ -114,7 +115,7 @@ const rewardTrend = computed(() => {
   return rewardStore.getRewardTrend(Number(dateRange.value))
 })
 
-// 任务完成趋势数据
+// 任务完成趋势数据（仅普通任务）
 const taskCompletionTrend = computed(() => {
   const days = Number(dateRange.value)
   const trendData: { date: string; completed: number }[] = []
@@ -126,7 +127,7 @@ const taskCompletionTrend = computed(() => {
     const dateStr = date.toISOString().split('T')[0]
 
     const dayTasks = taskStore.tasks.filter(task => {
-      return task.completedAt?.startsWith(dateStr)
+      return !task.isLongTerm && task.completedAt?.startsWith(dateStr)
     })
 
     trendData.push({ date: dateStr, completed: dayTasks.length })
@@ -135,7 +136,7 @@ const taskCompletionTrend = computed(() => {
   return trendData
 })
 
-// 任务优先级分布
+// 任务优先级分布（仅普通任务）
 const taskPriorityDistribution = computed(() => {
   const distribution = {
     low: 0,
@@ -144,7 +145,9 @@ const taskPriorityDistribution = computed(() => {
   }
 
   taskStore.tasks.forEach(task => {
-    distribution[task.priority]++
+    if (!task.isLongTerm) {
+      distribution[task.priority]++
+    }
   })
 
   return [
@@ -154,13 +157,15 @@ const taskPriorityDistribution = computed(() => {
   ]
 })
 
-// 任务分类分布
+// 任务分类分布（仅普通任务）
 const taskCategoryDistribution = computed(() => {
   const categoryMap = new Map<string, number>()
 
   taskStore.tasks.forEach(task => {
-    const count = categoryMap.get(task.category) || 0
-    categoryMap.set(task.category, count + 1)
+    if (!task.isLongTerm) {
+      const count = categoryMap.get(task.category) || 0
+      categoryMap.set(task.category, count + 1)
+    }
   })
 
   return Array.from(categoryMap.entries()).map(([name, value]) => ({
