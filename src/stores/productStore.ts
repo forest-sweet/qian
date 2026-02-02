@@ -92,20 +92,20 @@ export const useProductStore = defineStore('product', () => {
   const totalProducts = computed(() => products.value.length)
   const totalTransactions = computed(() => transactions.value.length)
   const totalSales = computed(() => {
-    return transactions.value.reduce((total, transaction) => total + transaction.totalPrice, 0)
+    return transactions.value.reduce((total: number, transaction: TransactionRecord) => total + transaction.totalPrice, 0)
   })
 
   // 获取所有分类
   const getAllCategories = computed(() => {
-    const categories = new Set(products.value.map(product => product.category))
+    const categories = new Set(products.value.map((product: Product) => product.category))
     return Array.from(categories)
   })
 
   // 获取所有标签
   const getAllTags = computed(() => {
     const tags = new Set<string>()
-    products.value.forEach(product => {
-      product.tags.forEach(tag => tags.add(tag))
+    products.value.forEach((product: Product) => {
+      product.tags.forEach((tag: string) => tags.add(tag))
     })
     return Array.from(tags)
   })
@@ -113,17 +113,17 @@ export const useProductStore = defineStore('product', () => {
   // 按分类筛选商品
   const getProductsByCategory = (category: 'all' | string) => {
     if (category === 'all') return products.value
-    return products.value.filter(product => product.category === category)
+    return products.value.filter((product: Product) => product.category === category)
   }
 
   // 按标签筛选商品
   const getProductsByTag = (tag: string) => {
-    return products.value.filter(product => product.tags.includes(tag))
+    return products.value.filter((product: Product) => product.tags.includes(tag))
   }
 
   // 按价格范围筛选商品
   const getProductsByPriceRange = (min: number, max: number) => {
-    return products.value.filter(product => product.price >= min && product.price <= max)
+    return products.value.filter((product: Product) => product.price >= min && product.price <= max)
   }
 
   // 创建商品
@@ -139,7 +139,7 @@ export const useProductStore = defineStore('product', () => {
 
   // 更新商品
   const updateProduct = (id: string, updates: Partial<Product>) => {
-    const index = products.value.findIndex(product => product.id === id)
+    const index = products.value.findIndex((product: Product) => product.id === id)
     if (index !== -1) {
       products.value[index] = {
         ...products.value[index],
@@ -153,7 +153,7 @@ export const useProductStore = defineStore('product', () => {
 
   // 删除商品
   const deleteProduct = (id: string) => {
-    const index = products.value.findIndex(product => product.id === id)
+    const index = products.value.findIndex((product: Product) => product.id === id)
     if (index !== -1) {
       products.value.splice(index, 1)
       return true
@@ -163,7 +163,7 @@ export const useProductStore = defineStore('product', () => {
 
   // 获取商品详情
   const getProductById = (id: string) => {
-    return products.value.find(product => product.id === id)
+    return products.value.find((product: Product) => product.id === id)
   }
 
   // 创建交易记录
@@ -179,14 +179,14 @@ export const useProductStore = defineStore('product', () => {
 
   // 获取交易记录
   const getTransactions = () => {
-    return transactions.value.sort((a, b) => 
+    return transactions.value.sort((a: TransactionRecord, b: TransactionRecord) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
   }
 
   // 按商品ID获取交易记录
   const getTransactionsByProductId = (productId: string) => {
-    return transactions.value.filter(transaction => transaction.productId === productId)
+    return transactions.value.filter((transaction: TransactionRecord) => transaction.productId === productId)
   }
 
   return {
